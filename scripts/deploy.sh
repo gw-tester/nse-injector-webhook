@@ -82,14 +82,8 @@ EONG
 make load
 
 # Generate the TLS Certificates
-./scripts/webhook-create-signed-cert.sh
-
 # Create Webhook service
-kubectl apply -f deployments/k8s.yml
-kubectl rollout status deployment/nse-sidecar-injector-webhook-deployment --timeout=3m
-
 # Register the Mutating Webhook service
-< ./deployments/mutatingwebhook.yaml ./scripts/webhook-patch-ca-bundle.sh | kubectl apply -f -
-
 # Enabled NSE sidecar injection in default namespace
-kubectl label namespace default nse-sidecar-injection=enabled
+make deploy
+kubectl rollout status deployment/nse-sidecar-injector-webhook-deployment --timeout=3m

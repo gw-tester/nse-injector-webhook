@@ -14,6 +14,7 @@ GO_CMD ?= $(shell which go 2> /dev/null || echo go)
 GOLANGCI_VERSION = 1.37.0
 IMAGE_NAME=gwtester/nse-sidecar-injector:0.0.1
 KIND_CLUSTER_NAME?="nsm"
+NAMESPACE_NSE_INJECTION_ENABLED?="default"
 
 test:
 	$(GO_CMD) test -v ./...
@@ -40,14 +41,14 @@ lint: bin/golangci-lint
 	bin/golangci-lint run --enable-all ./...
 
 deploy:
-	sudo -E $(DOCKER_COMPOSE_CMD) --file deployments/docker/docker-compose.yml \
-	--env-file deployments/docker/.env up --always-recreate-deps --detach
+	./scripts/webhook-create-signed-cert.sh
+	kubectl apply -f deployments/k8s.yml
+	< ./deployments/mutatingwebhook.yaml ./scripts/webhook-patch-ca-bundle.sh | kubectl apply -f -
+	kubectl label namespace $(NAMESPACE_NSE_INJECTION_ENABLED) nse-sidecar-injection=enabled
 undeploy:
-	sudo -E $(DOCKER_COMPOSE_CMD) --file deployments/docker/docker-compose.yml \
-	down --remove-orphans
-
-logs:
-	sudo -E $(DOCKER_COMPOSE_CMD) --file deployments/docker/docker-compose.yml logs
+	kubectl delete -f deployments/k8s.yml
+	< ./deployments/mutatingwebhook.yaml ./scripts/webhook-patch-ca-bundle.sh | kubectl delete -f -
+	kubectl label namespace $(NAMESPACE_NSE_INJECTION_ENABLED) nse-sidecar-injection-
 
 system-test:
 	@vagrant up --no-destroy-on-error
