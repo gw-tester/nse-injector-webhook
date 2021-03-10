@@ -73,11 +73,6 @@ pushd /opt/nsm
 NSM_NAMESPACE=default SPIRE_ENABLED=false INSECURE=true sudo -E make helm-install-nsm
 popd
 
-newgrp docker <<EONG
-docker pull gwtester/nse:0.0.1
-kind load docker-image gwtester/nse:0.0.1 --name "$KIND_CLUSTER_NAME"
-EONG
-
 # Build Webhook container and load the image into KinD cluster
 make load
 
@@ -86,4 +81,5 @@ make load
 # Register the Mutating Webhook service
 # Enabled NSE sidecar injection in default namespace
 make deploy
+
 kubectl rollout status deployment/nse-sidecar-injector-webhook-deployment --timeout=3m

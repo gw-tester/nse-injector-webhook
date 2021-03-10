@@ -72,6 +72,10 @@ assert_contains "$(kubectl get namespaces default --show-labels --no-headers)" "
 info "Verify that NSE Webhook server is up and running"
 assert_contains "$(kubectl logs "$nse_injector_pod")" "NSE webhook injector has started"
 
+info "Deploy example pod"
+kubectl apply -f test/
+trap "kubectl delete -f test/" EXIT
+
 info "Wait for pod's readiness"
 kubectl wait --for=condition=ready pods example --timeout=3m
 

@@ -34,8 +34,10 @@ Vagrant.configure("2") do |config|
     ./scripts/deploy.sh | tee ~/deploy.log
 
     # Verify services
-    kubectl apply -f test/
     ./scripts/check.sh | tee ~/check.log
+
+    # Teardown
+    make undeploy
   SHELL
 
   [:virtualbox, :libvirt].each do |provider|
