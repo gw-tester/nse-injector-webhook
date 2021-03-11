@@ -88,3 +88,9 @@ assert_contains "$(kubectl logs "$nse_injector_pod")" "Admission response added 
 info "Validate sidecar was injected"
 assert_contains "$(kubectl get pods example -o jsonpath='{.spec.containers[*].name}')" "sidecar"
 assert_contains "$(kubectl logs example -c sidecar)" "NSE: channel has been successfully advertised, waiting for connection from NSM..."
+assert_equals "$(kubectl get pod example -o jsonpath='{..metadata.annotations.ns\.networkservicemesh\.io/status}')" "injected"
+
+info "Validate annotations are kept"
+assert_non_empty "$(kubectl get pod example -o jsonpath='{..metadata.annotations.danm\.k8s\.io/interfaces}')"
+assert_non_empty "$(kubectl get pod example -o jsonpath='{..metadata.annotations.k8s\.v1\.cni\.cncf\.io/networks}')"
+assert_non_empty "$(kubectl get pod example -o jsonpath='{..metadata.annotations.ns\.networkservicemesh\.io/endpoints}')"

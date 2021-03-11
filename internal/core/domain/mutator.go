@@ -139,25 +139,22 @@ func (m *podMutator) createPatch(pod corev1.Pod) (patchOp []patchOperation) {
 		}).Debug("Volume patch added")
 	}
 
-	if pod.Annotations[annotationStatusKey] == "" {
-		patchOp = append(patchOp, patchOperation{
-			Op:    "add",
-			Path:  "/metadata/annotations",
-			Value: map[string]string{annotationStatusKey: annotationStatusInjectedValue},
-		})
-	} else {
-		patchOp = append(patchOp, patchOperation{
-			Op:    "replace",
-			Path:  "/metadata/annotations/" + annotationStatusKey,
-			Value: annotationStatusInjectedValue,
-		})
+	annotations := pod.GetAnnotations()
+	if annotations == nil {
+		annotations = map[string]string{}
 	}
+
+	annotations[annotationStatusKey] = annotationStatusInjectedValue
 
 	patchOp = append(patchOp, patchOperation{
 		Op:    "add",
 		Path:  "/metadata/annotations",
-		Value: map[string]string{annotationEndpointsKey: pod.Annotations[annotationEndpointsKey]},
+		Value: annotations,
 	})
+
+	log.WithFields(log.Fields{
+		"annotations": annotations,
+	}).Debug("Annotations patch added")
 
 	return patchOp
 }
