@@ -61,7 +61,7 @@ fi
 for node in $(kubectl get node -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'); do
     kubectl wait --for=condition=ready "node/$node" --timeout=3m
 done
-kubectl taint node "$KIND_CLUSTER_NAME-control-plane" node-role.kubernetes.io/master:NoSchedule-
+kubectl taint node "$KIND_CLUSTER_NAME-control-plane" node-role.kubernetes.io/master:NoSchedule- || true
 
 # Deploy NSM services using master branch
 # TODO: Use a stable release once it's available
@@ -69,9 +69,11 @@ if [ ! -d /opt/nsm ]; then
     sudo git clone --depth 1 https://github.com/networkservicemesh/networkservicemesh /opt/nsm
     sudo chown -R "$USER:" /opt/nsm
 fi
-pushd /opt/nsm
-NSM_NAMESPACE=default SPIRE_ENABLED=false INSECURE=true sudo -E make helm-install-nsm
-popd
+if ! helm list -q | grep -q nsm; then
+    pushd /opt/nsm
+    NSM_NAMESPACE=default SPIRE_ENABLED=false INSECURE=true sudo -E make helm-install-nsm
+    popd
+fi
 
 # Build Webhook container and load the image into KinD cluster
 make load

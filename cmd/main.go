@@ -73,7 +73,7 @@ func (f *file) UnmarshalText(b []byte) error {
 }
 
 func (args) Version() string {
-	return "nse-injector 0.0.1"
+	return "nse-injector 0.0.2"
 }
 
 func (args) Description() string {
