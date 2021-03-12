@@ -12,7 +12,7 @@ DOCKER_CMD ?= $(shell which docker 2> /dev/null || which podman 2> /dev/null || 
 KIND_CMD ?= $(shell which kind 2> /dev/null || echo kind)
 GO_CMD ?= $(shell which go 2> /dev/null || echo go)
 GOLANGCI_VERSION = 1.37.0
-IMAGE_NAME=gwtester/nse-sidecar-injector:0.0.1
+IMAGE_NAME=gwtester/nse-sidecar-injector:0.0.2
 KIND_CLUSTER_NAME?="nsm"
 NAMESPACE_NSE_INJECTION_ENABLED?="default"
 
